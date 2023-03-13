@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
+import 'package:flutter_ijkplayer/flutter_ijkplayer.dart';
 
 void main() => runApp(MyApp());
 
@@ -7,83 +7,106 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'My Flutter App',
+      title: 'Video Player Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
       home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
-
-  final TextEditingController urlController =
-      TextEditingController(); // 添加文本控制器
-
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class IjkPlayerPage extends StatefulWidget {
-  final String title;
-  final String url; // 修改为 String 类型
+class _MyHomePageState extends State<MyHomePage> {
+  final _urlController = TextEditingController();
 
-  IjkPlayerPage({Key? key, required this.title, required this.url})
-      : super(key: key);
+  @override
+  void dispose() {
+    _urlController.dispose();
+    super.dispose();
+  }
+
+  void _playVideo(BuildContext context) {
+    final url = _urlController.text.trim();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => IjkPlayerPage(url: url),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Video Player Demo'),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _urlController,
+              decoration: InputDecoration(
+                labelText: '输入网络地址',
+              ),
+            ),
+            SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: () => _playVideo(context),
+              child: Text('播放视频'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class IjkPlayerPage extends StatefulWidget {
+  final String url;
+
+  const IjkPlayerPage({Key? key, required this.url}) : super(key: key);
 
   @override
   _IjkPlayerPageState createState() => _IjkPlayerPageState();
 }
 
-Future<void> playVideo() async {
-  String url = widget.urlController.text.trim();
-  if (url.isEmpty) {
-    return;
-  }
-  await Navigator.of(context).push(MaterialPageRoute(
-    builder: (context) => IjkPlayerPage(
-      title: '视频播放器',
-      url: url,
-    ),
-  ));
-}
+class _IjkPlayerPageState extends State<IjkPlayerPage> {
+  late IjkMediaController _controller;
 
-class MyHomePage extends StatelessWidget {
+  @override
+  void initState() {
+    super.initState();
+    _initController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _initController() async {
+    _controller = IjkMediaController();
+    await _controller.setNetworkDataSource(
+      widget.url,
+      autoPlay: true,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Home Page'),
+        title: Text('视频播放'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'Enter your name',
-                labelText: 'Name',
-              ),
-            ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                playVideo();
-              },
-              style: ElevatedButton.styleFrom(
-                primary: Colors.blue,
-              ),
-              child: Text(
-                '播放',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      body: IjkPlayer(ijkMediaController: _controller),
     );
   }
 }
