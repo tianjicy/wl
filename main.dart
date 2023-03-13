@@ -25,6 +25,17 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+class IjkPlayerPage extends StatefulWidget {
+  final String title;
+  final String url; // 修改为 String 类型
+
+  IjkPlayerPage({Key? key, required this.title, required this.url})
+      : super(key: key);
+
+  @override
+  _IjkPlayerPageState createState() => _IjkPlayerPageState();
+}
+
 Future<void> playVideo() async {
   String url = widget.urlController.text.trim();
   if (url.isEmpty) {
