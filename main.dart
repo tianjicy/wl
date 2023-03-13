@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
 
 void main() => runApp(MyApp());
 
@@ -10,6 +11,31 @@ class MyApp extends StatelessWidget {
       home: MyHomePage(),
     );
   }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
+
+  final TextEditingController urlController =
+      TextEditingController(); // 添加文本控制器
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+Future<void> playVideo() async {
+  String url = widget.urlController.text.trim();
+  if (url.isEmpty) {
+    return;
+  }
+  await Navigator.of(context).push(MaterialPageRoute(
+    builder: (context) => IjkPlayerPage(
+      title: '视频播放器',
+      url: url,
+    ),
+  ));
 }
 
 class MyHomePage extends StatelessWidget {
@@ -32,27 +58,16 @@ class MyHomePage extends StatelessWidget {
             SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text('Button Pressed'),
-                      content: Text('Youthe button!'),
-                      actions: <Widget>[
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: Text('OK'),
-                        ),
-                      ],
-                    );
-                  },
-                );
+                playVideo();
               },
-              child: Text('Press Me'),
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+              style: ElevatedButton.styleFrom(
+                primary: Colors.blue,
+              ),
+              child: Text(
+                '播放',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
               ),
             ),
           ],
